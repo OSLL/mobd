@@ -1,5 +1,7 @@
 package edu.eltech.mobview.client;
 
+import java.util.HashSet;
+
 import org.gwtopenmaps.openlayers.client.LonLat;
 
 import com.google.gwt.core.client.EntryPoint;
@@ -9,11 +11,11 @@ import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 
-import edu.eltech.mobview.client.data.PointMap;
+import edu.eltech.mobview.client.data.PointOnMap;
+import edu.eltech.mobview.client.mvc.model.CollectionModel;
 import edu.eltech.mobview.client.mvc.model.Model;
-import edu.eltech.mobview.client.mvc.model.SetModel;
+import edu.eltech.mobview.client.ui.PointInfo;
 import edu.eltech.mobview.client.ui.map.BaseMapWidget;
-import edu.eltech.mobview.client.ui.map.MobviewMapWidget;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -22,18 +24,23 @@ public class Module implements EntryPoint {
 
 	private final Messages messages = GWT.create(Messages.class);
 	
-	private final SetModel<PointMap> model = new SetModel<PointMap>();
+	private final CollectionModel<PointOnMap> model = 
+			new CollectionModel<PointOnMap>(new HashSet<Model<PointOnMap>>());
 
 	/**
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {		
-		//final MobviewMapWidget mapWidget = new MobviewMapWidget("100%", "100%");
 		initModel();
-		final BaseMapWidget mapWidget = new BaseMapWidget("100%", "100%", model);
+		final BaseMapWidget mapWidget = new BaseMapWidget("100%", "100%", model);		
+		
 		DockLayoutPanel p = new DockLayoutPanel(Unit.EM);
+		PointInfo pointInfoWidget = new PointInfo();
+		
+		pointInfoWidget.attachSelectionModel(mapWidget.getSelectionModel());
 		
 		p.addNorth(new HTML("<h1 class='header'>Mobview</h1>"), 5);
+		p.addEast(pointInfoWidget, 20);
 		p.add(mapWidget);
 		
 		RootLayoutPanel.get().add(p);
@@ -49,7 +56,7 @@ public class Module implements EntryPoint {
 		spb.transform("EPSG:4326", "EPSG:900913");
 		spb1.transform("EPSG:4326", "EPSG:900913");
 		
-		model.add(new Model<PointMap>(new PointMap(spb.lon(), spb.lat(), "Точка 1")));
-		model.add(new Model<PointMap>(new PointMap(spb1.lon(), spb1.lat(), "Точка 2")));
+		model.add(new Model<PointOnMap>(new PointOnMap(spb.lon(), spb.lat(), 50, "Точка 1", "red")));
+		model.add(new Model<PointOnMap>(new PointOnMap(spb1.lon(), spb1.lat(), 70, "Точка 2", "green")));
 	}
 }

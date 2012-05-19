@@ -2,7 +2,7 @@ package edu.eltech.mobview.client;
 
 /**
  * Interface to represent the messages contained in resource bundle:
- * 	G:/opt/workspace-ee/mobview/src/main/resources/edu/eltech/mobview/client/Messages.properties'.
+ * 	G:/Documents and Settings/user/git/mobd/src/main/resources/edu/eltech/mobview/client/Messages.properties'.
  */
 public interface Messages extends com.google.gwt.i18n.client.Messages {
   

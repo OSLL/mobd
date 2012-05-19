@@ -61,11 +61,11 @@ public class Model<P> {
 	
 	public void subscribe(IModelSubscriber<P> subscriber) {
 		if (subscriber == null) {
-			throw new NullPointerException("subscriber == null");
+			throw new NullPointerException("subscriber is null");
 		}
 		
 		if (subscribers.contains(subscriber)) {
-			throw new IllegalArgumentException("Повторная подписка");
+			throw new IllegalArgumentException("re-subscribe");
 		}
 		
 		subscribers.add(subscriber);
