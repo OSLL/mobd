@@ -54,7 +54,6 @@ public class PointInfo extends VerticalPanel {
 				} else {
 					PointOnMap p = data.getProperty();
 					p.setDescription(taDescription.getText());
-					p.setRadius(Double.valueOf(tfRadius.getText()));					
 					data.setProperty(p);
 				}
 			}
@@ -76,7 +75,6 @@ public class PointInfo extends VerticalPanel {
 			public void onAdd(Model<PointOnMap> model) {
 				setEnabled(true);
 				data = model;
-				tfRadius.setText(String.valueOf(model.getProperty().getRadius()));
 				taDescription.setText(model.getProperty().getDescription());
 			}
 

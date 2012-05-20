@@ -5,18 +5,20 @@ package edu.eltech.mobview.client.data;
  *
  */
 public class PointOnMap {
+	public enum PointType {
+		MOBILE, HOUSE
+	}
+	
 	private double lon;
 	private double lat;
-	private double radius;
-	private String color;
+	private PointType type;
 	private String description;
 	
-	public PointOnMap(double lon, double lat, double radius, String description, String color) {
+	public PointOnMap(double lon, double lat, String description, PointType type) {
 		this.setLon(lon);
 		this.setLat(lat);
-		this.setRadius(radius);
 		this.setDescription(description);
-		this.setColor(color);
+		this.setType(type);
 	}
 
 	public double getLon() {
@@ -43,19 +45,12 @@ public class PointOnMap {
 		this.description = description;
 	}
 
-	public double getRadius() {
-		return radius;
+	public PointType getType() {
+		return type;
 	}
 
-	public void setRadius(double radius) {
-		this.radius = radius;
+	public void setType(PointType type) {
+		this.type = type;
 	}
 
-	public String getColor() {
-		return color;
-	}
-
-	public void setColor(String color) {
-		this.color = color;
-	}
 }
