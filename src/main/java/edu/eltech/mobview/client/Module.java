@@ -13,9 +13,8 @@ import com.google.gwt.user.client.ui.RootLayoutPanel;
 
 import edu.eltech.mobview.client.data.ColorCircle;
 import edu.eltech.mobview.client.data.Mobile;
-import edu.eltech.mobview.client.data.Place;
+import edu.eltech.mobview.client.data.House;
 import edu.eltech.mobview.client.data.PointOnMap;
-import edu.eltech.mobview.client.data.PointOnMap.PointType;
 import edu.eltech.mobview.client.mvc.model.CollectionModel;
 import edu.eltech.mobview.client.mvc.model.Model;
 import edu.eltech.mobview.client.ui.PointInfo;
@@ -44,7 +43,7 @@ public class Module implements EntryPoint {
 		pointInfoWidget.attachSelectionModel(mapWidget.getSelectionModel());
 		
 		p.addNorth(new HTML("<h1 class='header'>Mobview</h1>"), 5);
-		p.addEast(pointInfoWidget, 20);
+//		p.addEast(pointInfoWidget, 20);
 		p.add(mapWidget);
 		
 		RootLayoutPanel.get().add(p);
@@ -62,8 +61,8 @@ public class Module implements EntryPoint {
 		spb1.transform("EPSG:4326", "EPSG:900913");
 		spb2.transform("EPSG:4326", "EPSG:900913");
 		
-		model.add(new Model<PointOnMap>(new ColorCircle(spb.lon(), spb.lat(), "Точка 1", PointType.MOBILE, 50)));
-		model.add(new Model<PointOnMap>(new Mobile(spb1.lon(), spb1.lat(), "Точка 2", PointType.HOUSE)));
-		model.add(new Model<PointOnMap>(new Place(spb2.lon(), spb2.lat(), "Точка 3", PointType.HOUSE)));
+		model.add(new Model<PointOnMap>(new ColorCircle(spb.lon(), spb.lat(), "Point", 50)));
+		model.add(new Model<PointOnMap>(new Mobile(spb1.lon(), spb1.lat(), "Mobile")));
+		model.add(new Model<PointOnMap>(new House(spb2.lon(), spb2.lat(), "House")));
 	}
 }

@@ -7,7 +7,6 @@ import org.gwtopenmaps.openlayers.client.Icon;
 import org.gwtopenmaps.openlayers.client.Size;
 
 import edu.eltech.mobview.client.data.PointOnMap;
-import edu.eltech.mobview.client.data.PointOnMap.PointType;
 
 public class Icons {
 	private final static Size SIZE_16 = new Size(16, 16);

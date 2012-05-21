@@ -3,8 +3,8 @@ package edu.eltech.mobview.client.data;
 public class Mobile extends PointOnMap {
 	private String number;
 
-	public Mobile(double lon, double lat, String description, PointType type) {
-		super(lon, lat, description, type);
+	public Mobile(double lon, double lat, String description) {
+		super(lon, lat, description);
 	}
 
 	public String getNumber() {

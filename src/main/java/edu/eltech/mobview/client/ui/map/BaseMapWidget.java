@@ -7,20 +7,22 @@ import org.gwtopenmaps.openlayers.client.LonLat;
 import org.gwtopenmaps.openlayers.client.MapOptions;
 import org.gwtopenmaps.openlayers.client.MapWidget;
 import org.gwtopenmaps.openlayers.client.Marker;
+import org.gwtopenmaps.openlayers.client.Pixel;
+import org.gwtopenmaps.openlayers.client.Size;
 import org.gwtopenmaps.openlayers.client.Style;
 import org.gwtopenmaps.openlayers.client.control.PanZoomBar;
 import org.gwtopenmaps.openlayers.client.control.SelectFeature;
 import org.gwtopenmaps.openlayers.client.control.SelectFeatureOptions;
-import org.gwtopenmaps.openlayers.client.event.EventHandler;
-import org.gwtopenmaps.openlayers.client.event.EventObject;
 import org.gwtopenmaps.openlayers.client.event.FeatureHighlightedListener;
 import org.gwtopenmaps.openlayers.client.event.FeatureUnhighlightedListener;
-import org.gwtopenmaps.openlayers.client.event.MarkerBrowserEventListener;
+import org.gwtopenmaps.openlayers.client.event.MapClickListener;
 import org.gwtopenmaps.openlayers.client.feature.VectorFeature;
 import org.gwtopenmaps.openlayers.client.geometry.Point;
 import org.gwtopenmaps.openlayers.client.layer.Markers;
 import org.gwtopenmaps.openlayers.client.layer.OSM;
 import org.gwtopenmaps.openlayers.client.layer.Vector;
+import org.gwtopenmaps.openlayers.client.popup.Popup;
+import org.gwtopenmaps.openlayers.client.util.JSObject;
 
 import com.google.gwt.core.client.GWT;
 
@@ -28,7 +30,7 @@ import edu.eltech.mobview.client.Icons;
 import edu.eltech.mobview.client.Icons.Image;
 import edu.eltech.mobview.client.data.ColorCircle;
 import edu.eltech.mobview.client.data.Mobile;
-import edu.eltech.mobview.client.data.Place;
+import edu.eltech.mobview.client.data.House;
 import edu.eltech.mobview.client.data.PointOnMap;
 import edu.eltech.mobview.client.mvc.model.CollectionModel;
 import edu.eltech.mobview.client.mvc.model.Model;
@@ -47,6 +49,9 @@ public class BaseMapWidget extends MapWidget implements FeatureHighlightedListen
 	private final BiMap<String, Model<PointOnMap>> featureModelBimap = 
 			new BiMap<String, Model<PointOnMap>>();
 	
+	private final BiMap<JSObject, Model<PointOnMap>> markerModelBimap = 
+			new BiMap<JSObject, Model<PointOnMap>>();
+	
 	private final Vector vectorLayer;
 	private final Markers markersLayer;
 	
@@ -60,10 +65,42 @@ public class BaseMapWidget extends MapWidget implements FeatureHighlightedListen
 		markersLayer = new Markers("markers");  
 		
 		getMap().addLayer(openStreetMap);
-		getMap().addLayer(vectorLayer);
 		getMap().addLayer(markersLayer);
+		getMap().addLayer(vectorLayer);
 		
 		getMap().addControl(new PanZoomBar());
+		
+		getMap().addMapClickListener(new MapClickListener() {
+			
+			@Override
+			public void onClick(MapClickEvent mapClickEvent) {
+				// FIXME картинки могут быть различного размера
+				final int SIDE = 8;
+				
+				GWT.log(mapClickEvent.getPixel().toString());
+				
+				Pixel clickpos = mapClickEvent.getPixel();
+								
+				JSObject[] markers = markersLayer.getMarkers();
+				
+				for (JSObject m : markers) {
+					Marker marker = Marker.narrowToMarker(m);
+					PointOnMap pointOnMap = markerModelBimap.findSecond(marker.getJSObject()).getProperty();
+					
+					Pixel point = getMap().getPixelFromLonLat(marker.getLonLat());
+					
+					int dx = Math.abs(clickpos.x() - point.x());
+					int dy = Math.abs(clickpos.y() - point.y());
+
+					if (dx <= SIDE && dy <= SIDE) {
+						Popup popup = new Popup("", marker.getLonLat(), new Size(200, 120),
+								pointOnMap.getDescription(), true);
+						
+						getMap().addPopup(popup);
+					}
+				}
+			}
+		});
 		
 		collectionView = new BaseCollectionView<PointOnMap>() {
 
@@ -72,31 +109,17 @@ public class BaseMapWidget extends MapWidget implements FeatureHighlightedListen
 				PointOnMap pointOnMap = model.getProperty();
 				LonLat pos = new LonLat(pointOnMap.getLon(), pointOnMap.getLat());
 				
+				//  
 				if (pointOnMap instanceof Mobile) {
 					Icon icon = Icons.getIcon(Image.MOBILE);
-					final Marker marker = new Marker(pos, icon);
-					
-					marker.getEvents().register("mousedown event", marker, new EventHandler() {
-						
-						@Override
-						public void onHandle(EventObject eventObject) {
-							GWT.log("marker click!");
-							marker.getEvents().stop(eventObject);
-						}
-					});
-					
-					marker.addBrowserEventListener("mousedown browserevent", new MarkerBrowserEventListener() {
-						
-						@Override
-						public void onBrowserEvent(MarkerBrowserEvent markerBrowserEvent) {
-							GWT.log("marker click");
-						}
-					});
-					
+					Marker marker = new Marker(pos, icon);
+					markerModelBimap.put(marker.getJSObject(), model);
 					markersLayer.addMarker(marker);
-				} else if (pointOnMap instanceof Place) {
+				} else if (pointOnMap instanceof House) {
 					Icon icon = Icons.getIcon(Image.HOUSE);
-					markersLayer.addMarker(new Marker(pos, icon));				
+					Marker marker = new Marker(pos, icon);
+					markerModelBimap.put(marker.getJSObject(), model);
+					markersLayer.addMarker(marker);				
 				} else if (pointOnMap instanceof ColorCircle) {
 					Style style = new Style();
 					Point point = new Point(pos.lon(), pos.lat());
@@ -161,6 +184,11 @@ public class BaseMapWidget extends MapWidget implements FeatureHighlightedListen
 		style.setStrokeWidth(4);
 
 		vectorLayer.drawFeature(vectorFeature, style);
+		
+		Popup popup = new Popup("", vectorFeature.getCenterLonLat(), new Size(200, 120),
+				model.getProperty().getDescription(), true);
+		
+		getMap().addPopup(popup);
 	}
 
 	@Override
@@ -171,4 +199,17 @@ public class BaseMapWidget extends MapWidget implements FeatureHighlightedListen
 		vectorFeature.getStyle().setStrokeWidth(1);
 		vectorLayer.drawFeature(vectorFeature, vectorFeature.getStyle());
 	}
+	
+//	private class PointMarker extends Marker {
+//		private final Model<PointOnMap> model;
+//		
+//		public PointMarker(LonLat pos, Icon icon, Model<PointOnMap> model) {
+//			super(pos, icon);
+//			this.model = model;
+//		}
+//
+//		public Model<PointOnMap> getModel() {
+//			return model;
+//		}
+//	}
 }

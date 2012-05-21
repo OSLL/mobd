@@ -4,9 +4,8 @@ public class ColorCircle extends PointOnMap {
 
 	private double radius;
 	
-	public ColorCircle(double lon, double lat, String description,
-			PointType type, double radius) {
-		super(lon, lat, description, type);
+	public ColorCircle(double lon, double lat, String description, double radius) {
+		super(lon, lat, description);
 		this.radius = radius;
 	}
 
