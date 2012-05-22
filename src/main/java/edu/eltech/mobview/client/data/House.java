@@ -7,4 +7,8 @@ public class House extends PointOnMap {
 		// TODO Auto-generated constructor stub
 	}
 
+	public PointType getType() {
+		// TODO Auto-generated method stub
+		return PointType.HOUSE;
+	}
 }

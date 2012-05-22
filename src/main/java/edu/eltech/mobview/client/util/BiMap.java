@@ -21,7 +21,7 @@ public class BiMap<F, S> {
 	}
 	
 	public void removePair(F keyFirst, S keySecond) {
-		if (!firstMap.get(firstMap).equals(keySecond) || 
+		if (!firstMap.get(keyFirst).equals(keySecond) || 
 				!secondMap.get(keySecond).equals(keyFirst)) {
 			throw new IllegalArgumentException("pair does not exist");
 		}

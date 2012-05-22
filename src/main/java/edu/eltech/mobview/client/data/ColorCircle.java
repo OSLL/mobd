@@ -17,4 +17,9 @@ public class ColorCircle extends PointOnMap {
 		this.radius = radius;
 	}
 
+	@Override
+	public PointType getType() {
+		return PointType.COLOR_CIRCLE;
+	}
+
 }

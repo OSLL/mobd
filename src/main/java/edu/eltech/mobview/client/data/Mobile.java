@@ -14,4 +14,9 @@ public class Mobile extends PointOnMap {
 	public void setNumber(String number) {
 		this.number = number;
 	}
+
+	@Override
+	public PointType getType() {
+		return PointType.MOBILE;
+	}
 }

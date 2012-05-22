@@ -2,7 +2,6 @@ package edu.eltech.mobview.client.ui.map;
 
 import java.util.HashSet;
 
-import org.gwtopenmaps.openlayers.client.Icon;
 import org.gwtopenmaps.openlayers.client.LonLat;
 import org.gwtopenmaps.openlayers.client.MapOptions;
 import org.gwtopenmaps.openlayers.client.MapWidget;
@@ -17,7 +16,6 @@ import org.gwtopenmaps.openlayers.client.event.FeatureHighlightedListener;
 import org.gwtopenmaps.openlayers.client.event.FeatureUnhighlightedListener;
 import org.gwtopenmaps.openlayers.client.event.MapClickListener;
 import org.gwtopenmaps.openlayers.client.feature.VectorFeature;
-import org.gwtopenmaps.openlayers.client.geometry.Point;
 import org.gwtopenmaps.openlayers.client.layer.Markers;
 import org.gwtopenmaps.openlayers.client.layer.OSM;
 import org.gwtopenmaps.openlayers.client.layer.Vector;
@@ -28,32 +26,30 @@ import com.google.gwt.core.client.GWT;
 
 import edu.eltech.mobview.client.Icons;
 import edu.eltech.mobview.client.Icons.Image;
-import edu.eltech.mobview.client.data.ColorCircle;
-import edu.eltech.mobview.client.data.Mobile;
-import edu.eltech.mobview.client.data.House;
 import edu.eltech.mobview.client.data.PointOnMap;
+import edu.eltech.mobview.client.data.PointOnMap.PointType;
 import edu.eltech.mobview.client.mvc.model.CollectionModel;
 import edu.eltech.mobview.client.mvc.model.Model;
-import edu.eltech.mobview.client.mvc.view.BaseCollectionView;
+import edu.eltech.mobview.client.mvc.view.CollectionViewDispatcher;
+import edu.eltech.mobview.client.ui.map.view.CircleView;
+import edu.eltech.mobview.client.ui.map.view.ImageView;
 import edu.eltech.mobview.client.util.BiMap;
 
 /**
  * Карта с объектами
  */
 public class BaseMapWidget extends MapWidget implements FeatureHighlightedListener, FeatureUnhighlightedListener {
-	private final BaseCollectionView<PointOnMap> collectionView;
-	
 	private final CollectionModel<PointOnMap> selectionModel = 
 			new CollectionModel<PointOnMap>(new HashSet<Model<PointOnMap>>());
 	
-	private final BiMap<String, Model<PointOnMap>> featureModelBimap = 
-			new BiMap<String, Model<PointOnMap>>();
-	
-	private final BiMap<JSObject, Model<PointOnMap>> markerModelBimap = 
+	private final BiMap<JSObject, Model<PointOnMap>> jsoModelBimap = 
 			new BiMap<JSObject, Model<PointOnMap>>();
 	
 	private final Vector vectorLayer;
 	private final Markers markersLayer;
+	
+	CollectionViewDispatcher viewDispatcher = 
+			new CollectionViewDispatcher();
 	
 	public BaseMapWidget(String width, String height, CollectionModel<PointOnMap> model) {
 		super(width, height, new MapOptions());
@@ -85,7 +81,7 @@ public class BaseMapWidget extends MapWidget implements FeatureHighlightedListen
 				
 				for (JSObject m : markers) {
 					Marker marker = Marker.narrowToMarker(m);
-					PointOnMap pointOnMap = markerModelBimap.findSecond(marker.getJSObject()).getProperty();
+					PointOnMap pointOnMap = jsoModelBimap.findSecond(marker.getJSObject()).getProperty();
 					
 					Pixel point = getMap().getPixelFromLonLat(marker.getLonLat());
 					
@@ -102,62 +98,24 @@ public class BaseMapWidget extends MapWidget implements FeatureHighlightedListen
 			}
 		});
 		
-		collectionView = new BaseCollectionView<PointOnMap>() {
-
-			@Override
-			public void onAdd(Model<PointOnMap> model) {				
-				PointOnMap pointOnMap = model.getProperty();
-				LonLat pos = new LonLat(pointOnMap.getLon(), pointOnMap.getLat());
-				
-				//  
-				if (pointOnMap instanceof Mobile) {
-					Icon icon = Icons.getIcon(Image.MOBILE);
-					Marker marker = new Marker(pos, icon);
-					markerModelBimap.put(marker.getJSObject(), model);
-					markersLayer.addMarker(marker);
-				} else if (pointOnMap instanceof House) {
-					Icon icon = Icons.getIcon(Image.HOUSE);
-					Marker marker = new Marker(pos, icon);
-					markerModelBimap.put(marker.getJSObject(), model);
-					markersLayer.addMarker(marker);				
-				} else if (pointOnMap instanceof ColorCircle) {
-					Style style = new Style();
-					Point point = new Point(pos.lon(), pos.lat());
-					VectorFeature vf = new VectorFeature(point);
-					vf.setStyle(style);
-					featureModelBimap.put(vf.getFeatureId(), model);
-					vectorLayer.addFeature(vf);
-				} else {
-					 throw new Error("unknown point type");
-				}
-			}
-
-			@Override
-			public void onRemove(Model<PointOnMap> model) {
-				// TODO
-			}
-
-			@Override
-			public void onUpdate(Model<PointOnMap> model) {
-				PointOnMap pointOnMap = model.getProperty();
-				if (pointOnMap instanceof ColorCircle) {
-					String vfId = featureModelBimap.findFirst(model);
-					VectorFeature vf = vectorLayer.getFeatureById(vfId);
-					Style style = vf.getStyle();
-					vf.redrawParent();
-				} else {
-					GWT.log("onUpdate: not implemented yet");
-				}
-			}
-		};
+		viewDispatcher.registerView(PointType.COLOR_CIRCLE, 
+				new CircleView(jsoModelBimap, vectorLayer));
+		
+		viewDispatcher.registerView(PointType.MOBILE, 
+				new ImageView(jsoModelBimap, markersLayer, Icons.getIcon(Image.MOBILE)));
+		
+		viewDispatcher.registerView(PointType.HOUSE, 
+				new ImageView(jsoModelBimap, markersLayer, Icons.getIcon(Image.HOUSE)));
+		
 		addSelectFeature();
-		collectionView.setModel(model);
+		//collectionView.setModel(model);
+		viewDispatcher.setModel(model);
 		
 		// -- для отладки		
 		LonLat spb = new LonLat(30.301666, 59.93816);
 		spb.transform("EPSG:4326", "EPSG:900913");
 		
-		getMap().setCenter(spb, 13);
+		getMap().setCenter(spb, 15);
 	}
 	
 	private void addSelectFeature() {
@@ -177,8 +135,7 @@ public class BaseMapWidget extends MapWidget implements FeatureHighlightedListen
 
 	@Override
 	public void onFeatureHighlighted(VectorFeature vectorFeature) {
-		Model<PointOnMap> model = featureModelBimap.findSecond(vectorFeature
-				.getFeatureId());
+		Model<PointOnMap> model = jsoModelBimap.findSecond(vectorFeature.getJSObject());
 		selectionModel.add(model);
 		Style style = vectorFeature.getStyle();
 		style.setStrokeWidth(4);
@@ -193,23 +150,9 @@ public class BaseMapWidget extends MapWidget implements FeatureHighlightedListen
 
 	@Override
 	public void onFeatureUnhighlighted(VectorFeature vectorFeature) {
-		Model<PointOnMap> model = featureModelBimap.findSecond(vectorFeature
-				.getFeatureId());
+		Model<PointOnMap> model = jsoModelBimap.findSecond(vectorFeature.getJSObject());
 		selectionModel.remove(model);
 		vectorFeature.getStyle().setStrokeWidth(1);
 		vectorLayer.drawFeature(vectorFeature, vectorFeature.getStyle());
 	}
-	
-//	private class PointMarker extends Marker {
-//		private final Model<PointOnMap> model;
-//		
-//		public PointMarker(LonLat pos, Icon icon, Model<PointOnMap> model) {
-//			super(pos, icon);
-//			this.model = model;
-//		}
-//
-//		public Model<PointOnMap> getModel() {
-//			return model;
-//		}
-//	}
 }

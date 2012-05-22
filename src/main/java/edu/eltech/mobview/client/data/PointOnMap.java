@@ -4,10 +4,14 @@ package edu.eltech.mobview.client.data;
  * Точка на карте
  *
  */
-public class PointOnMap {
+public abstract class PointOnMap {
 //	public enum PointType {
 //		MOBILE, HOUSE
 //	}
+	
+	public enum PointType {
+		COLOR_CIRCLE, MOBILE, HOUSE
+	}
 	
 	private double lon;
 	private double lat;
@@ -44,6 +48,8 @@ public class PointOnMap {
 	public void setDescription(String description) {
 		this.description = description;
 	}
+	
+	public abstract PointType getType();
 //
 //	public PointType getType() {
 //		return type;
