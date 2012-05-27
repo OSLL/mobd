@@ -2,12 +2,14 @@ package edu.eltech.mobview.client;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 import org.gwtopenmaps.openlayers.client.LonLat;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
@@ -17,12 +19,18 @@ import edu.eltech.mobview.client.data.Mobile;
 import edu.eltech.mobview.client.data.House;
 import edu.eltech.mobview.client.data.PointOnMap;
 import edu.eltech.mobview.client.data.track.ModelUpdater;
+import edu.eltech.mobview.client.data.track.Place;
 import edu.eltech.mobview.client.data.track.Track;
 import edu.eltech.mobview.client.data.track.TrackPoint;
+import edu.eltech.mobview.client.data.track.TrackPointV2;
+import edu.eltech.mobview.client.data.track.TrackV2;
 import edu.eltech.mobview.client.mvc.model.CollectionModel;
 import edu.eltech.mobview.client.mvc.model.Model;
+import edu.eltech.mobview.client.service.TrackService;
+import edu.eltech.mobview.client.service.TrackServiceAsync;
 import edu.eltech.mobview.client.ui.PointInfo;
 import edu.eltech.mobview.client.ui.map.BaseMapWidget;
+import edu.eltech.mobview.client.util.InitCallback;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -30,6 +38,10 @@ import edu.eltech.mobview.client.ui.map.BaseMapWidget;
 public class Module implements EntryPoint {
 
 	private final Messages messages = GWT.create(Messages.class);
+	
+	private final TrackServiceAsync trackService = GWT
+			.create(TrackService.class);
+	
 	
 	private final CollectionModel<PointOnMap> model = 
 			new CollectionModel<PointOnMap>(new HashSet<Model<PointOnMap>>());
@@ -78,6 +90,15 @@ public class Module implements EntryPoint {
 	 * Для отладки.
 	 */
 	private void initModel() {
+		TrackV2 track = new TrackV2(1, new InitCallback() {
+			
+			@Override
+			public void onInit() {
+				GWT.log("track initialized!");				
+			}
+		});
+
+		
 		LonLat spb  = new LonLat(30.301666, 59.93816);
 		LonLat spb1 = new LonLat(30.311666, 59.93816);
 		LonLat spb2 = new LonLat(30.311666, 59.94316);

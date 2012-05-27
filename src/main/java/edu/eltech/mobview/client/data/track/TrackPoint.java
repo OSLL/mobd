@@ -3,6 +3,10 @@ package edu.eltech.mobview.client.data.track;
 import org.gwtopenmaps.openlayers.client.LonLat;
 
 public class TrackPoint {
+	private int timeStart;
+	private int timeEnd;
+	private int placeId;
+	
 	private LonLat pos;
 	
 	public TrackPoint(LonLat pos) {

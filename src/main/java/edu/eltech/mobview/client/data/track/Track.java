@@ -6,6 +6,7 @@ import org.gwtopenmaps.openlayers.client.LonLat;
 
 public class Track {
 	private boolean isRepeat;
+	
 	private final ArrayList<TrackPoint> trackPoints;
 	private final double velocity;
 	
