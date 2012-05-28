@@ -19,45 +19,11 @@ public class TrackV2 {
 	
 	private ArrayList<TrackPointV2> points =
 			new ArrayList<TrackPointV2>();
+
+	private int userid;
 	
-	public TrackV2(int userid, final InitCallback initCb) {
-		initCb.setCounter(2);
-		
-		final TrackServiceAsync trackService = GWT
-				.create(TrackService.class);
-		
-		trackService.getPlaces(userid, new AsyncCallback<List<Place>>() {
-			
-			@Override
-			public void onSuccess(List<Place> result) {
-				for (Place p : result) {
-					places.put(p.getPlaceid(), 
-						new LonLat(p.getLon(), p.getLat()));					
-				}
-				
-				initCb.inc();
-			}
-			
-			@Override
-			public void onFailure(Throwable caught) {
-				GWT.log(caught.getMessage());
-			}
-		});
-		
-		trackService.getTrackPoints(userid, new AsyncCallback<List<TrackPointV2>>() {
-			
-			@Override
-			public void onSuccess(List<TrackPointV2> result) {
-				points.addAll(result);
-				
-				initCb.inc();
-			}
-			
-			@Override
-			public void onFailure(Throwable caught) {
-				GWT.log(caught.getMessage());
-			}
-		});
+	public TrackV2(int userid) {
+		this.userid = userid;
 	}
 	
 	public int getTimeBegin() {
@@ -90,9 +56,61 @@ public class TrackV2 {
 		int t1 = p1.getTime();
 		int t2 = p2.getTime();
 		
-		double vlon = (t2 - t1) / (places.get(p2.getPlaceid()).lon() - places.get(p1.getPlaceid()).lon());
-		double vlat = (t2 - t1) / (places.get(p2.getPlaceid()).lat() - places.get(p1.getPlaceid()).lat());
+		double lon1 = places.get(p1.getPlaceid()).lon();
+		double lon2 = places.get(p2.getPlaceid()).lon();
 		
-		return new LonLat(vlon * time, vlat * time);
+		double lat1 = places.get(p1.getPlaceid()).lat();
+		double lat2 = places.get(p2.getPlaceid()).lat();
+		
+		double k = (double)(time - t1) / (t2 - t1);
+		
+		double lon = lon1 + (lon2 - lon1) * k;
+		double lat = lat1 + (lat2 - lat1) * k;
+		
+		return new LonLat(lon, lat);
+	}
+
+	public void init(final InitCallback initCb) {
+		if (initCb != null) {
+			initCb.setCounter(2);
+		}
+		
+		final TrackServiceAsync trackService = GWT
+				.create(TrackService.class);
+		
+		trackService.getPlaces(userid, new AsyncCallback<List<Place>>() {
+			
+			@Override
+			public void onSuccess(List<Place> result) {
+				for (Place p : result) {
+					places.put(p.getPlaceid(), 
+						new LonLat(p.getLon(), p.getLat()));					
+				}
+				if (initCb != null) {
+					initCb.inc();
+				}
+			}
+			
+			@Override
+			public void onFailure(Throwable caught) {
+				GWT.log(caught.getMessage());
+			}
+		});
+		
+		trackService.getTrackPoints(userid, new AsyncCallback<List<TrackPointV2>>() {
+			
+			@Override
+			public void onSuccess(List<TrackPointV2> result) {
+				points.addAll(result);
+				if (initCb != null) {
+					initCb.inc();
+				}
+			}
+			
+			@Override
+			public void onFailure(Throwable caught) {
+				GWT.log(caught.getMessage());
+			}
+		});
 	}
 }

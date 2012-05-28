@@ -12,7 +12,8 @@ public class TrackPointV2 implements Serializable {
 	}
 	
 	public TrackPointV2(int time, int placeid) {
-		
+		this.time = time;
+		this.placeid = placeid;
 	}
 	
 	public int getTime() {

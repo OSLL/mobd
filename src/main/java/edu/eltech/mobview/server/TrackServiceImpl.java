@@ -43,13 +43,6 @@ public class TrackServiceImpl extends RemoteServiceServlet
 	}
 	
 	@Override
-	public void init() throws ServletException {
-		System.out.println("servlet init!");
-
-
-	}
-
-	@Override
 	public List<Place> getPlaces(int userid) {
 		EntityManager em = HibernateUtil.getEntityManager();
 		CriteriaBuilder cb = em.getCriteriaBuilder();
