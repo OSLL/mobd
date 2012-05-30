@@ -25,7 +25,8 @@ public class ModelUpdaterV2 {
 			Model<PointOnMap> model = models.get(i);
 			
 			LonLat newPos = track.getPos(time);
-			PointOnMap point = model.getProperty();
+			newPos.transform("EPSG:4326", "EPSG:900913");
+			PointOnMap point = model.getProperty();			
 			point.setLon(newPos.lon());
 			point.setLat(newPos.lat());
 			model.setProperty(point);			

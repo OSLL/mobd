@@ -23,6 +23,8 @@ import org.gwtopenmaps.openlayers.client.popup.Popup;
 import org.gwtopenmaps.openlayers.client.util.JSObject;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.ui.RootLayoutPanel;
+import com.google.gwt.user.client.ui.RootPanel;
 
 import edu.eltech.mobview.client.Icons;
 import edu.eltech.mobview.client.Icons.Image;
@@ -31,6 +33,7 @@ import edu.eltech.mobview.client.data.PointOnMap.PointType;
 import edu.eltech.mobview.client.mvc.model.CollectionModel;
 import edu.eltech.mobview.client.mvc.model.Model;
 import edu.eltech.mobview.client.mvc.view.CollectionViewDispatcher;
+import edu.eltech.mobview.client.ui.ClockWidget;
 import edu.eltech.mobview.client.ui.map.view.CircleView;
 import edu.eltech.mobview.client.ui.map.view.ImageView;
 import edu.eltech.mobview.client.util.BiMap;
@@ -53,7 +56,7 @@ public class BaseMapWidget extends MapWidget implements FeatureHighlightedListen
 	
 	public BaseMapWidget(String width, String height, CollectionModel<PointOnMap> model) {
 		super(width, height, new MapOptions());
-		
+
 		OSM openStreetMap = OSM.CycleMap("Base map");
 		openStreetMap.setIsBaseLayer(true);
 		
