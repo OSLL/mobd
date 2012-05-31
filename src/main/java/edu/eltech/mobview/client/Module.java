@@ -105,6 +105,8 @@ public class Module implements EntryPoint {
 			@Override
 			public void onInit() {
 				cw.setTime(track.getTimeBegin());
+				cw.setStartTime(track.getTimeBegin());
+				cw.setStopTime(track.getTimeEnd());
 				cw.start();
 			}
 		});
