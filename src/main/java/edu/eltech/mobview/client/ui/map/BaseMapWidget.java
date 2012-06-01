@@ -53,6 +53,8 @@ public class BaseMapWidget extends MapWidget implements FeatureHighlightedListen
 	
 	CollectionViewDispatcher viewDispatcher = 
 			new CollectionViewDispatcher();
+
+	private Vector trackLayer;
 	
 	public BaseMapWidget(String width, String height, CollectionModel<PointOnMap> model) {
 		super(width, height, new MapOptions());
@@ -61,10 +63,16 @@ public class BaseMapWidget extends MapWidget implements FeatureHighlightedListen
 		openStreetMap.setIsBaseLayer(true);
 		
 		vectorLayer  = new Vector("vector");
-		markersLayer = new Markers("markers");  
+		markersLayer = new Markers("markers");
+		trackLayer = new Vector("trackLayer");
+		
+		// -- для отладки		
+		LonLat spb = new LonLat(30.301666, 59.93816);
+		spb.transform("EPSG:4326", "EPSG:900913");
 		
 		getMap().addLayer(openStreetMap);
-		getMap().addLayer(markersLayer);
+		getMap().setCenter(spb, 8);
+		//getMap().addLayer(markersLayer);
 		getMap().addLayer(vectorLayer);
 		
 		getMap().addControl(new PanZoomBar());
@@ -75,9 +83,6 @@ public class BaseMapWidget extends MapWidget implements FeatureHighlightedListen
 			public void onClick(MapClickEvent mapClickEvent) {
 				// FIXME картинки могут быть различного размера
 				final int SIDE = 8;
-				
-				GWT.log(mapClickEvent.getPixel().toString());
-				
 				Pixel clickpos = mapClickEvent.getPixel();
 								
 				JSObject[] markers = markersLayer.getMarkers();
@@ -113,12 +118,6 @@ public class BaseMapWidget extends MapWidget implements FeatureHighlightedListen
 		addSelectFeature();
 		//collectionView.setModel(model);
 		viewDispatcher.setModel(model);
-		
-		// -- для отладки		
-		LonLat spb = new LonLat(30.301666, 59.93816);
-		spb.transform("EPSG:4326", "EPSG:900913");
-		
-		getMap().setCenter(spb, 15);
 	}
 	
 	private void addSelectFeature() {

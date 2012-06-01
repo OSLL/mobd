@@ -1,5 +1,5 @@
 /** Add css rules here for your application. */
-
+/* CSS A */
 .header {
   padding-left: 0.5em;
 }
@@ -26,3 +26,21 @@
 #closeButton {
   margin: 15px 6px 6px;
 }
+
+.lblTime {
+	font-size: 16pt;
+}
+
+.clockWidget {
+	position:fixed;
+	top:20px;
+	right:20px;
+	z-index: 1000;
+	background-color: white;
+}
+
+.timeSlider {
+	margin-left: 10px;
+}
+
+

@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<module>
-  <!-- Inherit our applications main module.                      -->
-  <inherits name='edu.eltech.mobview.Module' />
-
-  <!-- Specify the path to any remote services.                   -->
-  <servlet path="/Module/greet" class="edu.eltech.mobview.server.GreetingServiceImpl" />
-
-</module>

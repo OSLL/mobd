@@ -13,12 +13,13 @@
   <inherits name='com.google.gwt.user.theme.standard.Standard' />
   <!-- <inherits name='com.google.gwt.user.theme.chrome.Chrome'/> -->
   <!-- <inherits name='com.google.gwt.user.theme.dark.Dark'/>     -->
-
   <!-- Other module inherits                                      -->
   <inherits name='org.gwtopenmaps.openlayers.OpenLayers'/>
+  <inherits name='com.sencha.gxt.ui.GXT'/>
   
   <!-- Specify the app entry point class.                         -->
   <entry-point class='edu.eltech.mobview.client.Module' />
+  <servlet path="/Module/track" class="edu.eltech.mobview.server.TrackServiceImpl" />
 
   <!-- Specify the paths for translatable code                    -->
   <source path='client' />

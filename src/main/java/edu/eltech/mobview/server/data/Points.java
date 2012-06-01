@@ -7,6 +7,7 @@ import javax.persistence.Id;
 public class Points {
 	@Id
 	private int pointsid;
+	private int pointid;
 	private int userid;
 	private double x;
 	private double y;
@@ -33,5 +34,11 @@ public class Points {
 	}
 	public void setY(double y) {
 		this.y = y;
+	}
+	public int getPointid() {
+		return pointid;
+	}
+	public void setPointid(int pointid) {
+		this.pointid = pointid;
 	}
 }

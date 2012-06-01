@@ -13,15 +13,17 @@ public abstract class PointOnMap {
 		COLOR_CIRCLE, MOBILE, HOUSE
 	}
 	
+	private final int id;
 	private double lon;
 	private double lat;
 //	private PointType type;
 	private String description;
 	
-	public PointOnMap(double lon, double lat, String description) {//, PointType type) {
+	public PointOnMap(int id, double lon, double lat, String description) {//, PointType type) {
 		this.setLon(lon);
 		this.setLat(lat);
 		this.setDescription(description);
+		this.id = id;
 //		this.setType(type);
 	}
 
@@ -58,5 +60,9 @@ public abstract class PointOnMap {
 //	public void setType(PointType type) {
 //		this.type = type;
 //	}
+
+	public int getId() {
+		return id;
+	}
 
 }

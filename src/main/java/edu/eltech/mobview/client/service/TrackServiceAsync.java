@@ -1,47 +1,26 @@
 package edu.eltech.mobview.client.service;
 
-import com.google.gwt.core.client.GWT;
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.rpc.ServiceDefTarget;
 
-public interface TrackServiceAsync
-{
+import edu.eltech.mobview.client.data.LonLatDTO;
+import edu.eltech.mobview.client.data.TrackDTO;
+import edu.eltech.mobview.client.data.track.TrackPointV2;
 
-    /**
-     * GWT-RPC service  asynchronous (client-side) interface
-     * @see edu.eltech.mobview.client.service.TrackService
-     */
-    void getTrackPoints( int userid, AsyncCallback<java.util.List<edu.eltech.mobview.client.data.track.TrackPointV2>> callback );
+public interface TrackServiceAsync {
 
+	void getAllPlaces(
+			AsyncCallback<Map<Integer, Map<Integer, LonLatDTO>>> callback);
 
-    /**
-     * GWT-RPC service  asynchronous (client-side) interface
-     * @see edu.eltech.mobview.client.service.TrackService
-     */
-    void getPlaces( int userid, AsyncCallback<java.util.List<edu.eltech.mobview.client.data.track.Place>> callback );
+	void getAllTrackPoints(
+			AsyncCallback<Map<Integer, List<TrackPointV2>>> callback);
 
+	void getAllTracks(AsyncCallback<Map<Integer, TrackDTO>> callback);
 
-    /**
-     * Utility class to get the RPC Async interface from client-side code
-     */
-    public static final class Util 
-    { 
-        private static TrackServiceAsync instance;
+	void getPlaces(int userid, AsyncCallback<Map<Integer, LonLatDTO>> callback);
 
-        public static final TrackServiceAsync getInstance()
-        {
-            if ( instance == null )
-            {
-                instance = (TrackServiceAsync) GWT.create( TrackService.class );
-                ServiceDefTarget target = (ServiceDefTarget) instance;
-                target.setServiceEntryPoint( GWT.getModuleBaseURL() + "track" );
-            }
-            return instance;
-        }
+	void getTrackPoints(int userid, AsyncCallback<List<TrackPointV2>> callback);
 
-        private Util()
-        {
-            // Utility class should not be instanciated
-        }
-    }
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.gwtopenmaps.openlayers.client.LonLat;
 
+import edu.eltech.mobview.client.data.LonLatDTO;
 import edu.eltech.mobview.client.data.PointOnMap;
 import edu.eltech.mobview.client.mvc.model.Model;
 
@@ -24,7 +25,8 @@ public class ModelUpdaterV2 {
 			TrackV2 track = tracks.get(i);
 			Model<PointOnMap> model = models.get(i);
 			
-			LonLat newPos = track.getPos(time);
+			LonLatDTO posDto = track.getPos(time);
+			LonLat newPos = new LonLat(posDto.getLon(), posDto.getLat());
 			newPos.transform("EPSG:4326", "EPSG:900913");
 			PointOnMap point = model.getProperty();			
 			point.setLon(newPos.lon());
