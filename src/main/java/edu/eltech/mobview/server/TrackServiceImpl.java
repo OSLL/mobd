@@ -1,8 +1,12 @@
 package edu.eltech.mobview.server;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.TreeMap;
 
 import javax.persistence.EntityManager;
@@ -10,6 +14,8 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import javax.servlet.ServletException;
+
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import edu.eltech.mobview.client.data.LonLatDTO;
@@ -22,7 +28,7 @@ import edu.eltech.mobview.server.data.Visit10Min;
 @SuppressWarnings("serial")
 public class TrackServiceImpl extends RemoteServiceServlet
  implements TrackService {
-	private final LonLat spb = new LonLat(30.311666, 59.93816);
+	private LonLat pos = null;	
 	
 	private LonLatDTO coord(LonLat pos, double x, double y) {
 		final double ER = 6378.137;
@@ -67,7 +73,7 @@ public class TrackServiceImpl extends RemoteServiceServlet
 		Map<Integer, LonLatDTO> result = new TreeMap<Integer, LonLatDTO>();
 		
 		for (Points p : typedQuery.getResultList()) {		
-			result.put(p.getPointid(), coord(spb, p.getX(), p.getY()));
+			result.put(p.getPointid(), coord(pos, p.getX(), p.getY()));
 		}
 		
 		return result;
@@ -89,6 +95,7 @@ public class TrackServiceImpl extends RemoteServiceServlet
 		
 		for (Visit10Min v : typedQuery.getResultList()) {
 			int userid = v.getUserid();
+			
 			if (result.get(userid) == null) {
 				result.put(userid, new ArrayList<TrackPointV2>());
 			}
@@ -120,7 +127,7 @@ public class TrackServiceImpl extends RemoteServiceServlet
 			}
 			
 			Map<Integer, LonLatDTO> places = result.get(userid);
-			places.put(p.getPointid(), coord(spb, p.getX(), p.getY()));
+			places.put(p.getPointid(), coord(pos, p.getX(), p.getY()));
 		}
 		
 		return result;
@@ -157,14 +164,49 @@ public class TrackServiceImpl extends RemoteServiceServlet
 		Map<Integer, Map<Integer, LonLatDTO>> places = getAllPlaces();
 		Map<Integer, List<TrackPointV2>> trackPoints = getAllTrackPoints();
 		
+		int count = 0;
 		for (int userid : places.keySet()) {
+//			if (count > 5)
+//				continue;
+//			++count;
+			
 			TrackDTO track = new TrackDTO();
 			track.setPlaces(places.get(userid));
 			track.setPoints(trackPoints.get(userid));
 			result.put(userid, track);
 		}
 		
+		if (places.size() != trackPoints.keySet().size()) {
+			System.err.println("wrong places size");
+		}
+		
 		return result;
+	}
+	
+	@Override
+	public void init() throws ServletException {
+		Properties defaultProps = new Properties();
+		InputStream in;
+		
+		try {
+			in = getServletContext().getResourceAsStream("/WEB-INF/mobview.properties");
+			defaultProps.load(in);
+			double lon = Double.valueOf((String)defaultProps.get("lon"));
+			double lat = Double.valueOf((String)defaultProps.get("lat"));
+			pos = new LonLat(lon, lat);
+			in.close();
+
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public LonLatDTO getInitPos() {
+		return new LonLatDTO(pos.getLon(), pos.getLat());
 	}
 
 }

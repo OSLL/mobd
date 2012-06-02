@@ -23,4 +23,7 @@ public interface TrackServiceAsync {
 
 	void getTrackPoints(int userid, AsyncCallback<List<TrackPointV2>> callback);
 
+	void getInitPos(AsyncCallback<LonLatDTO> callback);
+
+
 }

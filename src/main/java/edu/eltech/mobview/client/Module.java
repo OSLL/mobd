@@ -65,16 +65,17 @@ public class Module implements EntryPoint {
 	 */
 	public void onModuleLoad() {		
 //		initModel();
+		final BaseMapWidget mapWidget = new BaseMapWidget("100%", "100%", model);		
 		cw = new ClockWidget(new ClockListener() {
 			
 			@Override
 			public void onTick(int ts) {
 				updater2.setTime(ts);
+				mapWidget.refreshVectorLayer();
 			}
 		});
 		initTrackModel();
 		
-		final BaseMapWidget mapWidget = new BaseMapWidget("100%", "100%", model);		
 		
 		DockLayoutPanel p = new DockLayoutPanel(Unit.EM);
 		PointInfo pointInfoWidget = new PointInfo();

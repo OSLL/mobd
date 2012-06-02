@@ -19,4 +19,5 @@ public interface TrackService extends RemoteService {
 	public Map<Integer, Map<Integer, LonLatDTO>> getAllPlaces();
 	
 	public Map<Integer, TrackDTO> getAllTracks();
+	public LonLatDTO getInitPos();
 }

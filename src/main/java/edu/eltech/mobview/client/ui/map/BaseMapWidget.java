@@ -23,16 +23,20 @@ import org.gwtopenmaps.openlayers.client.popup.Popup;
 import org.gwtopenmaps.openlayers.client.util.JSObject;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 
 import edu.eltech.mobview.client.Icons;
 import edu.eltech.mobview.client.Icons.Image;
+import edu.eltech.mobview.client.data.LonLatDTO;
 import edu.eltech.mobview.client.data.PointOnMap;
 import edu.eltech.mobview.client.data.PointOnMap.PointType;
 import edu.eltech.mobview.client.mvc.model.CollectionModel;
 import edu.eltech.mobview.client.mvc.model.Model;
 import edu.eltech.mobview.client.mvc.view.CollectionViewDispatcher;
+import edu.eltech.mobview.client.service.TrackService;
+import edu.eltech.mobview.client.service.TrackServiceAsync;
 import edu.eltech.mobview.client.ui.ClockWidget;
 import edu.eltech.mobview.client.ui.map.view.CircleView;
 import edu.eltech.mobview.client.ui.map.view.ImageView;
@@ -56,22 +60,37 @@ public class BaseMapWidget extends MapWidget implements FeatureHighlightedListen
 
 	private Vector trackLayer;
 	
+	private final TrackServiceAsync trackService = GWT
+			.create(TrackService.class);
+	
 	public BaseMapWidget(String width, String height, CollectionModel<PointOnMap> model) {
 		super(width, height, new MapOptions());
 
-		OSM openStreetMap = OSM.CycleMap("Base map");
+		OSM openStreetMap = OSM.Mapnik("Base map");
 		openStreetMap.setIsBaseLayer(true);
 		
 		vectorLayer  = new Vector("vector");
 		markersLayer = new Markers("markers");
 		trackLayer = new Vector("trackLayer");
 		
-		// -- для отладки		
-		LonLat spb = new LonLat(30.301666, 59.93816);
-		spb.transform("EPSG:4326", "EPSG:900913");
-		
 		getMap().addLayer(openStreetMap);
-		getMap().setCenter(spb, 8);
+		// -- для отладки		
+		trackService.getInitPos(new AsyncCallback<LonLatDTO>() {
+			
+			@Override
+			public void onSuccess(LonLatDTO result) {
+				LonLat pos = new LonLat(result.getLon(), result.getLat());
+				pos.transform("EPSG:4326", "EPSG:900913");
+				getMap().setCenter(pos, 8);
+			}
+			
+			@Override
+			public void onFailure(Throwable caught) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
 		//getMap().addLayer(markersLayer);
 		getMap().addLayer(vectorLayer);
 		
@@ -156,5 +175,9 @@ public class BaseMapWidget extends MapWidget implements FeatureHighlightedListen
 		selectionModel.remove(model);
 		vectorFeature.getStyle().setStrokeWidth(1);
 		vectorLayer.drawFeature(vectorFeature, vectorFeature.getStyle());
+	}
+	
+	public void refreshVectorLayer() {
+		vectorLayer.redraw();
 	}
 }

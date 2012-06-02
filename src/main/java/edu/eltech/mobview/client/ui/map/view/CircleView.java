@@ -1,5 +1,8 @@
 package edu.eltech.mobview.client.ui.map.view;
 
+import java.util.Map;
+import java.util.TreeMap;
+
 import org.gwtopenmaps.openlayers.client.LonLat;
 import org.gwtopenmaps.openlayers.client.Style;
 import org.gwtopenmaps.openlayers.client.control.Control;
@@ -20,6 +23,7 @@ public class CircleView extends BaseCollectionView<PointOnMap> {
 	
 	private final BiMap<JSObject, Model<PointOnMap>> jsoModelBimap;	
 	private final Vector vectorLayer;
+	private final Map<Integer, Point> points = new TreeMap<Integer, Point>();
 	
 	public CircleView(BiMap<JSObject, Model<PointOnMap>> jsoModelBimap, 
 			Vector vectorLayer) {
@@ -33,11 +37,14 @@ public class CircleView extends BaseCollectionView<PointOnMap> {
 		LonLat pos = new LonLat(pointOnMap.getLon(), pointOnMap.getLat());
 		
 		Style style = new Style();
+		style.setFillColor(getColor());
+		style.setFillOpacity(1);
 		Point point = new Point(pos.lon(), pos.lat());
+		points.put(pointOnMap.getId(), point);
 		VectorFeature vf = new VectorFeature(point);
 		vf.setStyle(style);
 		jsoModelBimap.put(vf.getJSObject(), model);
-		vectorLayer.addFeature(vf);				
+		vectorLayer.addFeature(vf);
 	}
 
 
@@ -49,22 +56,30 @@ public class CircleView extends BaseCollectionView<PointOnMap> {
 
 	@Override
 	public void onUpdate(Model<PointOnMap> model) {
+		PointOnMap pointOnMap = model.getProperty();
 		VectorFeature vf = 
 				VectorFeature.narrowToVectorFeature(jsoModelBimap.findFirst(model));
-		
-		vectorLayer.removeFeature(vf);
-		jsoModelBimap.removePair(jsoModelBimap.findFirst(model), model);
-		
-		PointOnMap pointOnMap = model.getProperty();
-		
-		Style style = new Style();
-//		style.setFillColor(getColor());
-		Point point = new Point(pointOnMap.getLon(), pointOnMap.getLat());
-		vf = new VectorFeature(point);
-		vf.setStyle(style);
-
-		jsoModelBimap.put(vf.getJSObject(), model);
-		vectorLayer.addFeature(vf);		
+		Point point = Point.narrowToPoint(vf.getGeometry().getJSObject());
+		point.setXY(pointOnMap.getLon(), pointOnMap.getLat());
+		point.calculateBounds();
+//		vectorLayer.redraw();
+//		VectorFeature vf = 
+//				VectorFeature.narrowToVectorFeature(jsoModelBimap.findFirst(model));
+//		
+//		vectorLayer.removeFeature(vf);
+//		jsoModelBimap.removePair(jsoModelBimap.findFirst(model), model);
+//		
+//		
+//		Style style = new Style();
+//		style.setFillColor("yellow");
+//		style.setStrokeColor("black");
+//		style.setFillOpacity(1);
+//		Point point = new Point(pointOnMap.getLon(), pointOnMap.getLat());
+//		vf = new VectorFeature(point);
+//		vf.setStyle(style);
+//
+//		jsoModelBimap.put(vf.getJSObject(), model);
+//		vectorLayer.addFeature(vf);		
 	}
 	
 //	@Override
@@ -102,7 +117,7 @@ public class CircleView extends BaseCollectionView<PointOnMap> {
 	
 	
 	private String getColor() {
-		StringBuilder sb = new StringBuilder('#');
+		StringBuilder sb = new StringBuilder("#");
 		
 		for (int i = 0; i != 6; ++i) {
 			sb.append(HEX_CHARS[Random.nextInt(16)]);

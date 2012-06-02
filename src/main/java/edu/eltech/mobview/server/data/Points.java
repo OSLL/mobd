@@ -6,16 +6,16 @@ import javax.persistence.Id;
 @Entity
 public class Points {
 	@Id
-	private int pointsid;
+	private int id;
 	private int pointid;
 	private int userid;
 	private double x;
 	private double y;
 	public int getPointsid() {
-		return pointsid;
+		return id;
 	}
 	public void setPointsid(int pointsid) {
-		this.pointsid = pointsid;
+		this.id = pointsid;
 	}
 	public int getUserid() {
 		return userid;
